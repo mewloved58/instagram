@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cozy Circle</title>
+    <style>
+      :root {
+        --bg: #121316;
+        --card: rgba(255, 255, 255, 0.06);
+        --line: rgba(255, 255, 255, 0.16);
+        --text: #f7f7fb;
+        --sub: #b8b8c6;
+        --blush: #ffb8a2;
+        --moss: #9bd6c7;
+        --plum: #8e7dff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Pretendard, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 20% 0%, rgba(142, 125, 255, 0.18), transparent 35%),
+          radial-gradient(circle at 80% 10%, rgba(255, 184, 162, 0.14), transparent 40%),
+          var(--bg);
+      }
+
+      .app {
+        max-width: 430px;
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 24px 16px 120px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .eyebrow { color: var(--sub); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+      h1 { margin: 6px 0 0; font-size: 28px; }
+
+      .icon-btn {
+        width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line);
+        display: grid; place-items: center; background: rgba(255,255,255,.08);
+      }
+
+      .archive {
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.03);
+        border-radius: 18px;
+        padding: 14px;
+        margin-bottom: 16px;
+      }
+
+      .archive-top { color: var(--sub); font-size: 12px; margin-bottom: 8px; }
+      .archive-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+      .pill { font-size: 12px; border-radius: 999px; padding: 6px 10px; }
+      .pill-blush { background: rgba(255,184,162,.2); color: var(--blush); }
+
+      .circles { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; }
+      .chip {
+        border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; background: rgba(255,255,255,.06);
+        color: var(--text); white-space: nowrap; font-size: 14px; cursor: pointer;
+      }
+      .chip.active { background: rgba(155,214,199,.2); color: var(--moss); border-color: rgba(155,214,199,.7); }
+
+      .feed { display: grid; gap: 14px; }
+      .card {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 24px;
+        overflow: hidden;
+        background: var(--card);
+        box-shadow: 0 10px 35px rgba(0,0,0,.35);
+      }
+      .photo { position: relative; height: 260px; }
+      .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,0.1) 45%, transparent);
+      }
+      .meta {
+        position: absolute; left: 12px; bottom: 12px;
+      }
+      .meta .user { margin: 0; font-size: 14px; font-weight: 600; }
+      .meta .time { margin: 4px 0 0; font-size: 12px; color: #d2d2dc; }
+
+      .content { padding: 13px; }
+      .mood { margin: 0 0 10px; font-size: 14px; line-height: 1.5; }
+      .stats { display: flex; align-items: center; justify-content: space-between; color: #d0d0db; font-size: 13px; }
+      .stats-left { display: flex; gap: 12px; }
+      .pill-plum { background: rgba(142,125,255,.22); color: #c8beff; }
+
+      .fab {
+        position: fixed; right: 18px; bottom: 92px;
+        border: 0; border-radius: 999px; background: var(--blush); color: #141414;
+        font-weight: 700; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+        cursor: pointer;
+      }
+
+      .nav {
+        position: fixed; left: 50%; transform: translateX(-50%);
+        bottom: 16px; width: min(320px, calc(100% - 24px));
+        display: flex; justify-content: space-around; align-items: center;
+        background: rgba(19, 20, 24, 0.9);
+        border: 1px solid var(--line); border-radius: 999px;
+        padding: 12px 8px;
+      }
+
+      .modal-bg {
+        position: fixed; inset: 0; background: rgba(0,0,0,.55);
+        opacity: 0; pointer-events: none; transition: opacity .25s;
+      }
+      .sheet {
+        position: fixed; left: 50%; transform: translateX(-50%) translateY(105%);
+        bottom: 0; width: min(430px, 100%);
+        border-radius: 24px 24px 0 0; border: 1px solid rgba(255,255,255,.14);
+        background: #1a1c21; padding: 16px;
+        transition: transform .35s cubic-bezier(.2,.9,.22,1);
+      }
+      .sheet-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      .sheet h2 { margin: 0; font-size: 18px; }
+      .action { width: 100%; margin-top: 8px; text-align: left; border: 1px solid rgba(255,255,255,.16);
+        background: rgba(255,255,255,.05); color: var(--text); border-radius: 12px; padding: 12px; }
+
+      .open .modal-bg { opacity: 1; pointer-events: auto; }
+      .open .sheet { transform: translateX(-50%) translateY(0); }
+      .empty { text-align: center; color: var(--sub); border: 1px dashed var(--line); border-radius: 16px; padding: 22px; }
+    </style>
+  </head>
+  <body>
+    <main class="app" id="appRoot">
+      <header class="header">
+        <div>
+          <div class="eyebrow">private circle</div>
+          <h1>Cozy Circle</h1>
+        </div>
+        <button class="icon-btn" aria-label="notifications">🔔</button>
+      </header>
+
+      <section class="archive">
+        <div class="archive-top">오늘의 감정 기록</div>
+        <div class="archive-row">
+          <div style="font-size:14px">3개의 소중한 순간이 아카이브에 저장됐어요.</div>
+          <span class="pill pill-blush">day 20</span>
+        </div>
+      </section>
+
+      <section class="circles" id="chips"></section>
+      <section class="feed" id="feed"></section>
+    </main>
+
+    <button class="fab" id="openComposer">+ 실시간 공유</button>
+
+    <div class="modal-bg" id="modalBg"></div>
+    <aside class="sheet" id="composerSheet">
+      <div class="sheet-row">
+        <h2>지금의 순간 공유</h2>
+        <button class="icon-btn" id="closeComposer" aria-label="close" style="width:34px;height:34px;">✕</button>
+      </div>
+      <button class="action">📷 사진 올리기</button>
+      <button class="action">🎬 짧은 영상 올리기</button>
+      <button class="action">📝 오늘 감정 한 줄 남기기</button>
+    </aside>
+
+    <nav class="nav">🏠 ➕ ❤️ 👤</nav>
+
+    <script>
+      const circles = [
+        { id: 'all', label: '✨ 모두' },
+        { id: 'family', label: '🏠 가족' },
+        { id: 'besties', label: '💞 베프' },
+        { id: 'roommates', label: '🌙 룸메' }
+      ];
+
+      const moments = [
+        { user: 'Mina', circleId: 'family', mood: '비 내리는 창가, 따뜻한 차 한 잔 ☕', time: '방금', img: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=900', reactions: 14, comments: 5 },
+        { user: 'Jiho', circleId: 'besties', mood: '퇴근길 산책. 바람이 정말 부드러웠어.', time: '12분 전', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900', reactions: 21, comments: 8 },
+        { user: 'Noah', circleId: 'roommates', mood: '오늘 저녁은 집밥 성공 🍳', time: '1시간 전', img: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=900', reactions: 12, comments: 4 }
+      ];
+
+      let selected = 'all';
+      const chipsEl = document.getElementById('chips');
+      const feedEl = document.getElementById('feed');
+      const appRoot = document.getElementById('appRoot');
+
+      const renderChips = () => {
+        chipsEl.innerHTML = circles
+          .map(c => `<button class="chip ${c.id === selected ? 'active' : ''}" data-id="${c.id}">${c.label}</button>`)
+          .join('');
+        chipsEl.querySelectorAll('.chip').forEach(btn => {
+          btn.addEventListener('click', () => {
+            selected = btn.dataset.id;
+            renderChips();
+            renderFeed();
+          });
+        });
+      };
+
+      const renderFeed = () => {
+        const list = selected === 'all' ? moments : moments.filter(m => m.circleId === selected);
+        if (!list.length) {
+          feedEl.innerHTML = '<div class="empty">아직 공유된 순간이 없어요. 첫 감정을 남겨보세요.</div>';
+          return;
+        }
+        feedEl.innerHTML = list.map(m => `
+          <article class="card">
+            <div class="photo">
+              <img src="${m.img}" alt="${m.mood}">
+              <div class="overlay"></div>
+              <div class="meta"><p class="user">${m.user}</p><p class="time">${m.time}</p></div>
+            </div>
+            <div class="content">
+              <p class="mood">${m.mood}</p>
+              <div class="stats">
+                <div class="stats-left"><span>❤️ ${m.reactions}</span><span>💬 ${m.comments}</span></div>
+                <span class="pill pill-plum">archive</span>
+              </div>
+            </div>
+          </article>
+        `).join('');
+      };
+
+      const openComposer = () => document.body.classList.add('open');
+      const closeComposer = () => document.body.classList.remove('open');
+      document.getElementById('openComposer').addEventListener('click', openComposer);
+      document.getElementById('closeComposer').addEventListener('click', closeComposer);
+      document.getElementById('modalBg').addEventListener('click', closeComposer);
+
+      renderChips();
+      renderFeed();
+    </script>
+  </body>
+</html>
